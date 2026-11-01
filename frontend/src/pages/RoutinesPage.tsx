@@ -16,24 +16,24 @@ export function RoutinesPage() {
                 <h1 className="text-xl font-semibold">Rutinas</h1>
                 <Link
                     to="/routines/new"
-                    className="flex min-h-11 items-center rounded-xl bg-indigo-600 px-4 text-base font-medium text-white active:bg-indigo-700"
+                    className="flex min-h-11 items-center rounded-xl bg-concrete-900 px-4 text-base font-medium text-volt active:bg-concrete-800 dark:bg-volt dark:text-concrete-900 dark:active:opacity-90"
                 >
                     + Nueva
                 </Link>
             </div>
 
-            {isLoading && <p className="text-gray-500">Cargando...</p>}
+            {isLoading && <p className="text-concrete-500">Cargando...</p>}
 
             <div className="space-y-2">
                 {routines?.map((routine) => (
                     <Link key={routine.id} to={`/routines/${routine.id}`} className="block">
-                        <Card className="active:bg-gray-50 dark:active:bg-gray-800">
+                        <Card className="active:bg-concrete-100 dark:active:bg-concrete-700">
                             <span className="font-medium">{routine.name}</span>
                         </Card>
                     </Link>
                 ))}
                 {routines?.length === 0 && (
-                    <p className="text-gray-500">Todavía no tienes rutinas.</p>
+                    <p className="text-concrete-500">Todavía no tienes rutinas.</p>
                 )}
             </div>
         </div>

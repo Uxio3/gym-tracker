@@ -25,16 +25,18 @@ export function WorkoutsPage() {
         <div className="space-y-4">
             <h1 className="text-xl font-semibold">Entrenamientos</h1>
 
-            {isLoading && <p className="text-gray-500">Cargando...</p>}
+            {isLoading && <p className="text-concrete-500">Cargando...</p>}
 
             <div className="space-y-2">
                 {sorted?.map((session) => (
                     <Link key={session.id} to={`/workouts/${session.id}`} className="block">
-                        <Card className="flex items-center justify-between active:bg-gray-50 dark:active:bg-gray-800">
+                        <Card className="flex items-center justify-between active:bg-concrete-100 dark:active:bg-concrete-700">
                             <span>{formatDate(session.startedAt)}</span>
                             <span
                                 className={`text-sm font-medium ${
-                                    session.finishedAt ? "text-green-600" : "text-amber-600"
+                                    session.finishedAt
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-volt-700 dark:text-volt"
                                 }`}
                             >
                                 {session.finishedAt ? "Completado" : "En curso"}
@@ -43,7 +45,7 @@ export function WorkoutsPage() {
                     </Link>
                 ))}
                 {sorted?.length === 0 && (
-                    <p className="text-gray-500">Todavía no tienes entrenamientos.</p>
+                    <p className="text-concrete-500">Todavía no tienes entrenamientos.</p>
                 )}
             </div>
         </div>

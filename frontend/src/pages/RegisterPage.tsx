@@ -27,7 +27,7 @@ export function RegisterPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
+        <div className="flex min-h-screen items-center justify-center bg-concrete-100 px-4 dark:bg-concrete-950">
             <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
                 <h1 className="text-center text-2xl font-semibold">Crear cuenta</h1>
 
@@ -55,9 +55,9 @@ export function RegisterPage() {
                     {loading ? "Creando..." : "Crear cuenta"}
                 </Button>
 
-                <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-center text-sm text-concrete-500 dark:text-concrete-400">
                     ¿Ya tienes cuenta?{" "}
-                    <Link to="/login" className="font-medium text-indigo-600 dark:text-indigo-400">
+                    <Link to="/login" className="font-medium text-volt-700 dark:text-volt">
                         Entra
                     </Link>
                 </p>

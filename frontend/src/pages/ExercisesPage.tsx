@@ -53,21 +53,21 @@ export function ExercisesPage() {
                 </Button>
             </form>
 
-            {isLoading && <p className="text-gray-500">Cargando...</p>}
+            {isLoading && <p className="text-concrete-500">Cargando...</p>}
 
             <div className="space-y-2">
                 {exercises?.map((exercise) => (
                     <Card key={exercise.id} className="flex items-center justify-between">
                         <span className="font-medium">{exercise.name}</span>
                         {exercise.muscleGroup && (
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                            <span className="text-sm text-concrete-500 dark:text-concrete-400">
                                 {exercise.muscleGroup}
                             </span>
                         )}
                     </Card>
                 ))}
                 {exercises?.length === 0 && (
-                    <p className="text-gray-500">Todavía no tienes ejercicios.</p>
+                    <p className="text-concrete-500">Todavía no tienes ejercicios.</p>
                 )}
             </div>
         </div>

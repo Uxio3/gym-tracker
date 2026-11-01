@@ -97,18 +97,18 @@ export function NewRoutinePage() {
                             type="number"
                             min={1}
                             aria-label="Series"
-                            className="min-h-11 w-16 rounded-lg border border-gray-300 px-2 text-center dark:border-gray-700 dark:bg-gray-900"
+                            className="min-h-11 w-16 rounded-lg border border-concrete-300 px-2 text-center dark:border-concrete-700 dark:bg-concrete-800"
                             value={item.targetSets}
                             onChange={(e) =>
                                 updateExercise(index, "targetSets", Number(e.target.value))
                             }
                         />
-                        <span className="text-gray-400">×</span>
+                        <span className="text-concrete-400">×</span>
                         <input
                             type="number"
                             min={1}
                             aria-label="Repeticiones"
-                            className="min-h-11 w-16 rounded-lg border border-gray-300 px-2 text-center dark:border-gray-700 dark:bg-gray-900"
+                            className="min-h-11 w-16 rounded-lg border border-concrete-300 px-2 text-center dark:border-concrete-700 dark:bg-concrete-800"
                             value={item.targetReps}
                             onChange={(e) =>
                                 updateExercise(index, "targetReps", Number(e.target.value))

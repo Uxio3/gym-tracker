@@ -39,8 +39,8 @@ export function RoutineDetailPage() {
         return exercises?.find((e) => e.id === exerciseId)?.name ?? `Ejercicio #${exerciseId}`;
     }
 
-    if (isLoading) return <p className="text-gray-500">Cargando...</p>;
-    if (!routine) return <p className="text-gray-500">Rutina no encontrada.</p>;
+    if (isLoading) return <p className="text-concrete-500">Cargando...</p>;
+    if (!routine) return <p className="text-concrete-500">Rutina no encontrada.</p>;
 
     return (
         <div className="space-y-4">
@@ -50,13 +50,13 @@ export function RoutineDetailPage() {
                 {routine.exercises?.map((item) => (
                     <Card key={item.id} className="flex items-center justify-between">
                         <span className="font-medium">{exerciseName(item.exerciseId)}</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-concrete-500 dark:text-concrete-400">
                             {item.targetSets ?? "-"} × {item.targetReps ?? "-"}
                         </span>
                     </Card>
                 ))}
                 {routine.exercises?.length === 0 && (
-                    <p className="text-gray-500">Esta rutina no tiene ejercicios.</p>
+                    <p className="text-concrete-500">Esta rutina no tiene ejercicios.</p>
                 )}
             </div>
 

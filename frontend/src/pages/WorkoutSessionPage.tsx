@@ -60,8 +60,8 @@ export function WorkoutSessionPage() {
         addSet.mutate();
     }
 
-    if (isLoading) return <p className="text-gray-500">Cargando...</p>;
-    if (!session) return <p className="text-gray-500">Entrenamiento no encontrado.</p>;
+    if (isLoading) return <p className="text-concrete-500">Cargando...</p>;
+    if (!session) return <p className="text-concrete-500">Entrenamiento no encontrado.</p>;
 
     const isFinished = Boolean(session.finishedAt);
 
@@ -71,7 +71,9 @@ export function WorkoutSessionPage() {
                 <h1 className="text-xl font-semibold">Entrenamiento</h1>
                 <span
                     className={`text-sm font-medium ${
-                        isFinished ? "text-green-600" : "text-amber-600"
+                        isFinished
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-volt-700 dark:text-volt"
                     }`}
                 >
                     {isFinished ? "Completado" : "En curso"}
@@ -82,14 +84,14 @@ export function WorkoutSessionPage() {
                 {session.sets?.map((set) => (
                     <Card key={set.id} className="flex items-center justify-between">
                         <span className="font-medium">{exerciseName(set.exerciseId)}</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-concrete-500 dark:text-concrete-400">
                             Serie {set.setNumber} · {set.reps} reps
                             {set.weightKg ? ` · ${set.weightKg} kg` : ""}
                         </span>
                     </Card>
                 ))}
                 {session.sets?.length === 0 && (
-                    <p className="text-gray-500">Todavía no registraste series.</p>
+                    <p className="text-concrete-500">Todavía no registraste series.</p>
                 )}
             </div>
 
