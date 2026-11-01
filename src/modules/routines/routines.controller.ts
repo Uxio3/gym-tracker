@@ -5,9 +5,9 @@ import {
     createRoutine,
     getRoutineById,
     deleteRoutine,
-    type RoutineExerciseInput,
 } from "./routines.service.js";
-import { HttpError } from "../../utils/http-error.js";
+import { createRoutineSchema } from "./routines.schema.js";
+import { parseBody } from "../../utils/validate.js";
 
 export async function getRoutines(req: AuthRequest, res: Response) {
     const routines = await listRoutines(req.userId!);
@@ -15,14 +15,8 @@ export async function getRoutines(req: AuthRequest, res: Response) {
 }
 
 export async function postRoutine(req: AuthRequest, res: Response) {
-    const { name, exercises } = req.body as {
-        name?: string;
-        exercises?: RoutineExerciseInput[];
-    };
-    if (!name) {
-        throw new HttpError(400, "name is required");
-    }
-    const routine = await createRoutine(req.userId!, name, exercises ?? []);
+    const { name, exercises } = parseBody(createRoutineSchema, req.body);
+    const routine = await createRoutine(req.userId!, name, exercises);
     res.status(201).json(routine);
 }
 

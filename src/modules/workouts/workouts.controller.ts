@@ -6,12 +6,12 @@ import {
     getSessionById,
     addSetEntry,
     finishSession,
-    type SetEntryInput,
 } from "./workouts.service.js";
-import { HttpError } from "../../utils/http-error.js";
+import { startSessionSchema, addSetSchema } from "./workouts.schema.js";
+import { parseBody } from "../../utils/validate.js";
 
 export async function postSession(req: AuthRequest, res: Response) {
-    const { routineId } = req.body as { routineId?: number };
+    const { routineId } = parseBody(startSessionSchema, req.body);
     const session = await startSession(req.userId!, routineId);
     res.status(201).json(session);
 }
@@ -29,24 +29,8 @@ export async function getSession(req: AuthRequest, res: Response) {
 
 export async function postSet(req: AuthRequest, res: Response) {
     const sessionId = Number(req.params.id);
-    const { exerciseId, setNumber, reps, weightKg, rpe, notes } =
-        req.body as Partial<SetEntryInput>;
-
-    if (!exerciseId || !setNumber || !reps) {
-        throw new HttpError(
-            400,
-            "exerciseId, setNumber and reps are required"
-        );
-    }
-
-    const set = await addSetEntry(req.userId!, sessionId, {
-        exerciseId,
-        setNumber,
-        reps,
-        weightKg,
-        rpe,
-        notes,
-    });
+    const input = parseBody(addSetSchema, req.body);
+    const set = await addSetEntry(req.userId!, sessionId, input);
     res.status(201).json(set);
 }
 

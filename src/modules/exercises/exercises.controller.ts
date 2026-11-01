@@ -1,7 +1,8 @@
 import type { Response } from "express";
 import type { AuthRequest } from "../../middleware/auth.js";
 import { listExercises, createExercise } from "./exercises.service.js";
-import { HttpError } from "../../utils/http-error.js";
+import { createExerciseSchema } from "./exercises.schema.js";
+import { parseBody } from "../../utils/validate.js";
 
 export async function getExercises(req: AuthRequest, res: Response) {
     const exercises = await listExercises(req.userId!);
@@ -9,13 +10,7 @@ export async function getExercises(req: AuthRequest, res: Response) {
 }
 
 export async function postExercise(req: AuthRequest, res: Response) {
-    const { name, muscleGroup } = req.body as {
-        name?: string;
-        muscleGroup?: string;
-    };
-    if (!name) {
-        throw new HttpError(400, "name is required");
-    }
+    const { name, muscleGroup } = parseBody(createExerciseSchema, req.body);
     const exercise = await createExercise(req.userId!, name, muscleGroup);
     res.status(201).json(exercise);
 }
