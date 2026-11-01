@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { routines, routineExercises } from "../../db/schema.js";
 import { HttpError } from "../../utils/http-error.js";
@@ -11,7 +11,18 @@ export interface RoutineExerciseInput {
 }
 
 export async function listRoutines(userId: number) {
-    return db.select().from(routines).where(eq(routines.userId, userId));
+    return db
+        .select({
+            id: routines.id,
+            userId: routines.userId,
+            name: routines.name,
+            createdAt: routines.createdAt,
+            exerciseCount: sql<number>`count(${routineExercises.id})`.mapWith(Number),
+        })
+        .from(routines)
+        .leftJoin(routineExercises, eq(routineExercises.routineId, routines.id))
+        .where(eq(routines.userId, userId))
+        .groupBy(routines.id);
 }
 
 export async function createRoutine(

@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
-import { users } from "../../db/schema.js";
+import { users, revokedTokens } from "../../db/schema.js";
 import { HttpError } from "../../utils/http-error.js";
 
 const SALT_ROUNDS = 10;
@@ -42,5 +43,21 @@ export async function loginUser(email: string, password: string) {
 }
 
 export function signToken(userId: number) {
-    return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: "7d" });
+    const jti = crypto.randomUUID();
+    return jwt.sign({ userId, jti }, process.env.JWT_SECRET!, { expiresIn: "7d" });
+}
+
+export async function isTokenRevoked(jti: string) {
+    const [row] = await db
+        .select()
+        .from(revokedTokens)
+        .where(eq(revokedTokens.jti, jti));
+    return Boolean(row);
+}
+
+export async function revokeToken(jti: string, userId: number, expiresAt: Date) {
+    await db
+        .insert(revokedTokens)
+        .values({ jti, userId, expiresAt })
+        .onConflictDoNothing();
 }

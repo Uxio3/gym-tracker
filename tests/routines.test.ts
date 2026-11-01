@@ -25,6 +25,33 @@ describe("routines", () => {
         expect(get.body.name).toBe("Leg Day");
     });
 
+    it("lists routines with their exercise count", async () => {
+        const token = await createUserAndToken();
+        const exerciseId = await createExercise(token);
+
+        await request(app)
+            .post("/routines")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                name: "Leg Day",
+                exercises: [{ exerciseId, targetSets: 3, targetReps: 10 }],
+            });
+        await request(app)
+            .post("/routines")
+            .set("Authorization", `Bearer ${token}`)
+            .send({ name: "Rest Day" });
+
+        const list = await request(app)
+            .get("/routines")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(list.status).toBe(200);
+        const legDay = list.body.find((r: { name: string }) => r.name === "Leg Day");
+        const restDay = list.body.find((r: { name: string }) => r.name === "Rest Day");
+        expect(legDay.exerciseCount).toBe(1);
+        expect(restDay.exerciseCount).toBe(0);
+    });
+
     it("returns 404 for another user's routine", async () => {
         const tokenA = await createUserAndToken("a@example.com");
         const tokenB = await createUserAndToken("b@example.com");

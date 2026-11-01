@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
 
 const buttonVariants = {
     primary:
@@ -50,5 +50,60 @@ export function Card({ className = "", ...props }: HTMLAttributes<HTMLDivElement
             className={`rounded-2xl border border-concrete-200 bg-concrete-50 p-4 dark:border-concrete-700 dark:bg-concrete-800 ${className}`}
             {...props}
         />
+    );
+}
+
+const badgeVariants = {
+    neutral: "bg-concrete-200 text-concrete-700 dark:bg-concrete-700 dark:text-concrete-200",
+    volt: "bg-volt/20 text-volt-700 dark:bg-volt/15 dark:text-volt",
+    success: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
+};
+
+export function Badge({
+    className = "",
+    variant = "neutral",
+    ...props
+}: HTMLAttributes<HTMLSpanElement> & { variant?: keyof typeof badgeVariants }) {
+    return (
+        <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${badgeVariants[variant]} ${className}`}
+            {...props}
+        />
+    );
+}
+
+export function IconTile({ icon, className = "" }: { icon: ReactNode; className?: string }) {
+    return (
+        <span
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-concrete-100 text-lg dark:bg-concrete-700 ${className}`}
+            aria-hidden="true"
+        >
+            {icon}
+        </span>
+    );
+}
+
+export function EmptyState({
+    icon,
+    title,
+    description,
+    action,
+}: {
+    icon: ReactNode;
+    title: string;
+    description?: string;
+    action?: ReactNode;
+}) {
+    return (
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-concrete-300 px-6 py-10 text-center dark:border-concrete-700">
+            <span className="text-3xl" aria-hidden="true">
+                {icon}
+            </span>
+            <p className="font-medium">{title}</p>
+            {description && (
+                <p className="text-sm text-concrete-500 dark:text-concrete-400">{description}</p>
+            )}
+            {action && <div className="pt-2">{action}</div>}
+        </div>
     );
 }

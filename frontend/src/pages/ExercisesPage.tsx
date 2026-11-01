@@ -2,7 +2,10 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import type { Exercise } from "../lib/types";
-import { Button, Card, Input } from "../components/ui";
+import { Badge, Button, Card, EmptyState, IconTile, Input } from "../components/ui";
+
+const cardClassName =
+    "rounded-2xl border border-concrete-200 bg-concrete-50 p-4 dark:border-concrete-700 dark:bg-concrete-800";
 
 export function ExercisesPage() {
     const queryClient = useQueryClient();
@@ -35,9 +38,16 @@ export function ExercisesPage() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-xl font-semibold">Ejercicios</h1>
+            <div>
+                <h1 className="text-xl font-semibold">Ejercicios</h1>
+                {!!exercises?.length && (
+                    <p className="text-sm text-concrete-500 dark:text-concrete-400">
+                        {exercises.length} {exercises.length === 1 ? "ejercicio" : "ejercicios"}
+                    </p>
+                )}
+            </div>
 
-            <form onSubmit={onSubmit} className="space-y-2">
+            <form onSubmit={onSubmit} className={`space-y-2 ${cardClassName}`}>
                 <Input
                     placeholder="Nombre (ej. Press banca)"
                     value={name}
@@ -57,17 +67,19 @@ export function ExercisesPage() {
 
             <div className="space-y-2">
                 {exercises?.map((exercise) => (
-                    <Card key={exercise.id} className="flex items-center justify-between">
-                        <span className="font-medium">{exercise.name}</span>
-                        {exercise.muscleGroup && (
-                            <span className="text-sm text-concrete-500 dark:text-concrete-400">
-                                {exercise.muscleGroup}
-                            </span>
-                        )}
+                    <Card key={exercise.id} className="flex items-center gap-3">
+                        <IconTile icon="💪" />
+                        <span className="flex-1 font-medium">{exercise.name}</span>
+                        {exercise.muscleGroup && <Badge>{exercise.muscleGroup}</Badge>}
                     </Card>
                 ))}
+
                 {exercises?.length === 0 && (
-                    <p className="text-concrete-500">Todavía no tienes ejercicios.</p>
+                    <EmptyState
+                        icon="💪"
+                        title="Todavía no tienes ejercicios"
+                        description="Añade ejercicios para poder crear tus rutinas."
+                    />
                 )}
             </div>
         </div>

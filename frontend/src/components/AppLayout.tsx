@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 
 const navItems = [
@@ -7,20 +8,81 @@ const navItems = [
     { to: "/exercises", label: "Ejercicios", icon: "💪" },
 ];
 
+function LogoutIcon() {
+    return (
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+    );
+}
+
 export function AppLayout() {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
+    const [loggingOut, setLoggingOut] = useState(false);
+
+    async function handleLogout() {
+        if (loggingOut) return;
+        setLoggingOut(true);
+        try {
+            await logout();
+            navigate("/login", { replace: true });
+        } finally {
+            setLoggingOut(false);
+        }
+    }
+
+    const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
     return (
         <div className="flex min-h-screen flex-col bg-concrete-100 text-concrete-900 dark:bg-concrete-950 dark:text-concrete-100">
             <header className="border-b border-concrete-200 dark:border-concrete-700">
-                <div className="mx-auto flex max-w-xl items-center justify-between px-4 py-3">
-                    <span className="text-lg font-semibold">Gym Tracker</span>
-                    <button
-                        onClick={logout}
-                        className="min-h-11 px-2 text-sm text-concrete-500 active:text-concrete-700 dark:text-concrete-400 dark:active:text-concrete-200"
-                    >
-                        {user?.email} · Salir
-                    </button>
+                <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4 py-3">
+                    <span className="shrink-0 text-lg font-semibold">Gym Tracker</span>
+
+                    <div className="flex min-w-0 items-center gap-2">
+                        <span
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-concrete-200 text-sm font-medium text-concrete-700 dark:bg-concrete-700 dark:text-concrete-200"
+                            title={user?.email}
+                        >
+                            {initial}
+                        </span>
+                        <span
+                            className="hidden max-w-[10rem] truncate text-sm text-concrete-500 dark:text-concrete-400 sm:inline"
+                            title={user?.email}
+                        >
+                            {user?.email}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            disabled={loggingOut}
+                            aria-label="Cerrar sesión"
+                            title="Cerrar sesión"
+                            className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-concrete-500 active:bg-concrete-200 disabled:opacity-60 dark:text-concrete-400 dark:active:bg-concrete-700"
+                        >
+                            {loggingOut ? (
+                                <span
+                                    className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                                    aria-hidden="true"
+                                />
+                            ) : (
+                                <LogoutIcon />
+                            )}
+                        </button>
+                    </div>
                 </div>
             </header>
 

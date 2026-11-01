@@ -1,4 +1,7 @@
 const TOKEN_KEY = "gym-tracker-token";
+const USER_KEY = "gym-tracker-user";
+
+export const UNAUTHORIZED_EVENT = "gym-tracker:unauthorized";
 
 export function getToken() {
     return localStorage.getItem(TOKEN_KEY);
@@ -8,8 +11,22 @@ export function setToken(token: string) {
     localStorage.setItem(TOKEN_KEY, token);
 }
 
-export function clearToken() {
+export function getStoredUser<T>(): T | null {
+    try {
+        const raw = localStorage.getItem(USER_KEY);
+        return raw ? (JSON.parse(raw) as T) : null;
+    } catch {
+        return null;
+    }
+}
+
+export function setStoredUser(user: unknown) {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function clearSession() {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
 }
 
 export class ApiError extends Error {
@@ -32,6 +49,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
             ...options.headers,
         },
     });
+
+    if (res.status === 401 && token) {
+        // The token we sent was rejected (expired/revoked) — drop the local
+        // session so the app doesn't keep looking authenticated.
+        clearSession();
+        window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+    }
 
     if (res.status === 204) {
         return undefined as T;

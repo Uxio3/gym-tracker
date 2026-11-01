@@ -34,6 +34,31 @@ describe("workouts", () => {
         expect(detail.body.sets).toHaveLength(1);
     });
 
+    it("lists sessions with their set count", async () => {
+        const token = await createUserAndToken();
+        const exerciseId = await createExercise(token, "Squat");
+
+        const session = await request(app)
+            .post("/workouts")
+            .set("Authorization", `Bearer ${token}`)
+            .send({});
+        await request(app)
+            .post(`/workouts/${session.body.id}/sets`)
+            .set("Authorization", `Bearer ${token}`)
+            .send({ exerciseId, setNumber: 1, reps: 5 });
+        await request(app)
+            .post(`/workouts/${session.body.id}/sets`)
+            .set("Authorization", `Bearer ${token}`)
+            .send({ exerciseId, setNumber: 2, reps: 5 });
+
+        const list = await request(app)
+            .get("/workouts")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(list.status).toBe(200);
+        expect(list.body[0].setCount).toBe(2);
+    });
+
     it("rejects an invalid set payload", async () => {
         const token = await createUserAndToken();
 

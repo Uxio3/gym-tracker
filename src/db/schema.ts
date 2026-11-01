@@ -54,6 +54,16 @@ export const workoutSessions = pgTable("workout_sessions", {
     finishedAt: timestamp("finished_at"),
 });
 
+export const revokedTokens = pgTable("revoked_tokens", {
+    id: serial("id").primaryKey(),
+    jti: text("jti").notNull().unique(),
+    userId: integer("user_id")
+        .notNull()
+        .references(() => users.id),
+    expiresAt: timestamp("expires_at").notNull(),
+    revokedAt: timestamp("revoked_at").defaultNow().notNull(),
+});
+
 export const setEntries = pgTable("set_entries", {
     id: serial("id").primaryKey(),
     sessionId: integer("session_id")

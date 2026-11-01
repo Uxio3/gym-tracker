@@ -17,7 +17,8 @@ await migrate(db, { migrationsFolder: "./src/db/migrations" });
 beforeEach(async () => {
     await pgClient`
         TRUNCATE TABLE
-            set_entries, workout_sessions, routine_exercises, routines, exercises, users
+            set_entries, workout_sessions, routine_exercises, routines, exercises,
+            revoked_tokens, users
         RESTART IDENTITY CASCADE
     `;
 });

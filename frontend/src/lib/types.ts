@@ -26,6 +26,7 @@ export interface Routine {
     name: string;
     createdAt: string;
     exercises?: RoutineExercise[];
+    exerciseCount?: number;
 }
 
 export interface SetEntry {
@@ -46,4 +47,5 @@ export interface WorkoutSession {
     startedAt: string;
     finishedAt: string | null;
     sets?: SetEntry[];
+    setCount?: number;
 }

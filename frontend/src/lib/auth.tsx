@@ -1,5 +1,14 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { api, clearToken, getToken, setToken } from "./api";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    api,
+    clearSession,
+    getStoredUser,
+    getToken,
+    setStoredUser,
+    setToken,
+    UNAUTHORIZED_EVENT,
+} from "./api";
 import type { User } from "./types";
 
 interface AuthContextValue {
@@ -7,32 +16,37 @@ interface AuthContextValue {
     token: string | null;
     login: (email: string, password: string) => Promise<void>;
     register: (email: string, password: string) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const USER_KEY = "gym-tracker-user";
-
-function loadStoredUser(): User | null {
-    try {
-        const raw = localStorage.getItem(USER_KEY);
-        return raw ? (JSON.parse(raw) as User) : null;
-    } catch {
-        return null;
-    }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
+    const queryClient = useQueryClient();
     const [token, setTokenState] = useState<string | null>(getToken());
-    const [user, setUser] = useState<User | null>(loadStoredUser());
+    const [user, setUser] = useState<User | null>(getStoredUser<User>());
 
     function persist(nextToken: string, nextUser: User) {
         setToken(nextToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+        setStoredUser(nextUser);
         setTokenState(nextToken);
         setUser(nextUser);
     }
+
+    function clearLocalSession() {
+        clearSession();
+        setTokenState(null);
+        setUser(null);
+        // Drop any cached data so it can't leak into the next session on
+        // this device (e.g. a different user logging in afterwards).
+        queryClient.clear();
+    }
+
+    useEffect(() => {
+        window.addEventListener(UNAUTHORIZED_EVENT, clearLocalSession);
+        return () => window.removeEventListener(UNAUTHORIZED_EVENT, clearLocalSession);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     async function login(email: string, password: string) {
         const res = await api.post<{ token: string; user: User }>("/auth/login", {
@@ -50,11 +64,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         persist(res.token, res.user);
     }
 
-    function logout() {
-        clearToken();
-        localStorage.removeItem(USER_KEY);
-        setTokenState(null);
-        setUser(null);
+    async function logout() {
+        try {
+            await api.post("/auth/logout");
+        } catch {
+            // Best-effort: even if revoking the token on the server fails
+            // (offline, server down), still drop the local session.
+        } finally {
+            clearLocalSession();
+        }
     }
 
     return (

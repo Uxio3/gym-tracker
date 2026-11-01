@@ -65,4 +65,31 @@ describe("auth", () => {
 
         expect(res.status).toBe(401);
     });
+
+    it("rejects logout without a token", async () => {
+        const res = await request(app).post("/auth/logout");
+        expect(res.status).toBe(401);
+    });
+
+    it("revokes the token on logout so it can no longer be used", async () => {
+        const registerRes = await request(app)
+            .post("/auth/register")
+            .send({ email: "erin@example.com", password: "password123" });
+        const token = registerRes.body.token as string;
+
+        const beforeLogout = await request(app)
+            .get("/exercises")
+            .set("Authorization", `Bearer ${token}`);
+        expect(beforeLogout.status).toBe(200);
+
+        const logoutRes = await request(app)
+            .post("/auth/logout")
+            .set("Authorization", `Bearer ${token}`);
+        expect(logoutRes.status).toBe(204);
+
+        const afterLogout = await request(app)
+            .get("/exercises")
+            .set("Authorization", `Bearer ${token}`);
+        expect(afterLogout.status).toBe(401);
+    });
 });

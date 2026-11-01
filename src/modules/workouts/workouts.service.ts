@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { workoutSessions, setEntries } from "../../db/schema.js";
 import { HttpError } from "../../utils/http-error.js";
@@ -22,9 +22,18 @@ export async function startSession(userId: number, routineId?: number) {
 
 export async function listSessions(userId: number) {
     return db
-        .select()
+        .select({
+            id: workoutSessions.id,
+            userId: workoutSessions.userId,
+            routineId: workoutSessions.routineId,
+            startedAt: workoutSessions.startedAt,
+            finishedAt: workoutSessions.finishedAt,
+            setCount: sql<number>`count(${setEntries.id})`.mapWith(Number),
+        })
         .from(workoutSessions)
-        .where(eq(workoutSessions.userId, userId));
+        .leftJoin(setEntries, eq(setEntries.sessionId, workoutSessions.id))
+        .where(eq(workoutSessions.userId, userId))
+        .groupBy(workoutSessions.id);
 }
 
 async function getOwnedSession(userId: number, sessionId: number) {
