@@ -11,16 +11,18 @@ process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-secret";
 
 const { migrate } = await import("drizzle-orm/postgres-js/migrator");
 const { db, pgClient } = await import("../src/db/client.js");
+const { seed } = await import("../src/db/seed.js");
 
 await migrate(db, { migrationsFolder: "./src/db/migrations" });
 
 beforeEach(async () => {
     await pgClient`
         TRUNCATE TABLE
-            set_entries, workout_sessions, routine_exercises, routines, exercises,
-            revoked_tokens, users
+            training_plans, set_entries, workout_sessions, routine_exercises, routines, exercises,
+            revoked_tokens, users, user_profiles, routine_template_exercises, routine_templates
         RESTART IDENTITY CASCADE
     `;
+    await seed();
 });
 
 afterAll(async () => {

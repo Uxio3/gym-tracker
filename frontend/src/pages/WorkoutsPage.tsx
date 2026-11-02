@@ -1,33 +1,23 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import type { WorkoutSession } from "../lib/types";
+import { useDeleteWorkout } from "../lib/mutations";
+import { formatDuration, formatSessionDate } from "../lib/workouts";
 import { Badge, Card, EmptyState, IconTile } from "../components/ui";
-
-function formatDate(iso: string) {
-    return new Date(iso).toLocaleString("es-ES", {
-        dateStyle: "medium",
-        timeStyle: "short",
-    });
-}
-
-function formatDuration(startedAt: string, finishedAt: string) {
-    const minutes = Math.max(
-        1,
-        Math.round((new Date(finishedAt).getTime() - new Date(startedAt).getTime()) / 60000)
-    );
-    return `${minutes} min`;
-}
+import { ActionMenu } from "../components/ActionMenu";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 export function WorkoutsPage() {
+    const navigate = useNavigate();
+    const [toDelete, setToDelete] = useState<WorkoutSession | null>(null);
+
     const { data: sessions, isLoading } = useQuery({
         queryKey: ["workouts"],
         queryFn: () => api.get<WorkoutSession[]>("/workouts"),
     });
-
-    const sorted = sessions
-        ?.slice()
-        .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+    const deleteWorkout = useDeleteWorkout();
 
     return (
         <div className="space-y-4">
@@ -36,31 +26,38 @@ export function WorkoutsPage() {
             {isLoading && <p className="text-concrete-500">Cargando...</p>}
 
             <div className="space-y-2">
-                {sorted?.map((session) => {
+                {sessions?.map((session) => {
                     const setCount = session.setCount ?? 0;
                     return (
                         <Link key={session.id} to={`/workouts/${session.id}`} className="block">
-                            <Card className="flex items-center gap-3 active:bg-concrete-100 dark:active:bg-concrete-700">
+                            <Card className="flex items-center gap-3 py-2 pr-2 active:bg-concrete-100 dark:active:bg-concrete-700">
                                 <IconTile icon="🏋️" />
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate font-medium">
-                                        {formatDate(session.startedAt)}
+                                        {session.routineName ?? "Entrenamiento libre"}
                                     </p>
-                                    <p className="text-sm text-concrete-500 dark:text-concrete-400">
-                                        {setCount} {setCount === 1 ? "serie" : "series"}
+                                    <p className="truncate text-sm text-concrete-500 dark:text-concrete-400">
+                                        {formatSessionDate(session.startedAt)} · {setCount}{" "}
+                                        {setCount === 1 ? "serie" : "series"}
                                         {session.finishedAt &&
                                             ` · ${formatDuration(session.startedAt, session.finishedAt)}`}
                                     </p>
                                 </div>
                                 <Badge variant={session.finishedAt ? "success" : "volt"}>
-                                    {session.finishedAt ? "Completado" : "En curso"}
+                                    {session.finishedAt ? "Hecho" : "En curso"}
                                 </Badge>
+                                <ActionMenu
+                                    items={[
+                                        { label: "Ver detalles", onSelect: () => navigate(`/workouts/${session.id}`) },
+                                        { label: "Eliminar", danger: true, onSelect: () => setToDelete(session) },
+                                    ]}
+                                />
                             </Card>
                         </Link>
                     );
                 })}
 
-                {sorted?.length === 0 && (
+                {sessions?.length === 0 && (
                     <EmptyState
                         icon="🏋️"
                         title="Todavía no tienes entrenamientos"
@@ -76,6 +73,20 @@ export function WorkoutsPage() {
                     />
                 )}
             </div>
+
+            <ConfirmDialog
+                open={toDelete !== null}
+                title="¿Eliminar este entrenamiento?"
+                pending={deleteWorkout.isPending}
+                error={deleteWorkout.error?.message}
+                onCancel={() => {
+                    setToDelete(null);
+                    deleteWorkout.reset();
+                }}
+                onConfirm={() => deleteWorkout.mutate(toDelete!.id, { onSuccess: () => setToDelete(null) })}
+            >
+                <p>Se borrarán también todas sus series. No se puede deshacer.</p>
+            </ConfirmDialog>
         </div>
     );
 }

@@ -15,6 +15,34 @@
       "when": 1793545943997,
       "tag": "0001_overjoyed_joshua_kane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793601796503,
+      "tag": "0002_natural_hairball",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793606047171,
+      "tag": "0003_exercise_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793609872187,
+      "tag": "0004_training_plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793616120012,
+      "tag": "0005_cascade_deletes",
+      "breakpoints": true
     }
   ]
 }

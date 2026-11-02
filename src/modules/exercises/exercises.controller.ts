@@ -1,12 +1,17 @@
 import type { Response } from "express";
 import type { AuthRequest } from "../../middleware/auth.js";
-import { listExercises, createExercise } from "./exercises.service.js";
+import { listExercises, getExerciseById, createExercise } from "./exercises.service.js";
 import { createExerciseSchema } from "./exercises.schema.js";
 import { parseBody } from "../../utils/validate.js";
 
 export async function getExercises(req: AuthRequest, res: Response) {
     const exercises = await listExercises(req.userId!);
     res.json(exercises);
+}
+
+export async function getExercise(req: AuthRequest, res: Response) {
+    const exercise = await getExerciseById(req.userId!, Number(req.params.id));
+    res.json(exercise);
 }
 
 export async function postExercise(req: AuthRequest, res: Response) {

@@ -8,6 +8,12 @@ const routineExerciseSchema = z.object({
 });
 
 export const createRoutineSchema = z.object({
-    name: z.string().min(1),
+    name: z.string().trim().min(1),
     exercises: z.array(routineExerciseSchema).optional().default([]),
+});
+
+// Editing replaces the whole routine: its name and its exercise list.
+export const updateRoutineSchema = z.object({
+    name: z.string().trim().min(1),
+    exercises: z.array(routineExerciseSchema),
 });

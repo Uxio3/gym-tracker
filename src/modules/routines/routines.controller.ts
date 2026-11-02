@@ -4,9 +4,11 @@ import {
     listRoutines,
     createRoutine,
     getRoutineById,
+    updateRoutine,
     deleteRoutine,
+    getRoutineMuscleLoad,
 } from "./routines.service.js";
-import { createRoutineSchema } from "./routines.schema.js";
+import { createRoutineSchema, updateRoutineSchema } from "./routines.schema.js";
 import { parseBody } from "../../utils/validate.js";
 
 export async function getRoutines(req: AuthRequest, res: Response) {
@@ -26,8 +28,19 @@ export async function getRoutine(req: AuthRequest, res: Response) {
     res.json(routine);
 }
 
+export async function putRoutine(req: AuthRequest, res: Response) {
+    const routineId = Number(req.params.id);
+    const { name, exercises } = parseBody(updateRoutineSchema, req.body);
+    const routine = await updateRoutine(req.userId!, routineId, name, exercises);
+    res.json(routine);
+}
+
 export async function removeRoutine(req: AuthRequest, res: Response) {
     const routineId = Number(req.params.id);
     await deleteRoutine(req.userId!, routineId);
     res.status(204).send();
+}
+
+export async function getRoutineLoad(req: AuthRequest, res: Response) {
+    res.json(await getRoutineMuscleLoad(req.userId!, Number(req.params.id)));
 }
